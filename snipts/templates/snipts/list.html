@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% load pagination_tags %}
+
+{% block body-class %}{{ block.super }}{% if user.username == 'blog' %} blog{% endif %}{% endblock %}
+
+{% block page-title %}/ {% if public and not public_user %}public{% else %}{{ user.username }}{% endif %}{% if tag %} / {{ tag }}{% endif %} - {{ block.super }}{% endblock %}
+
+{% block js %}
+        {{ block.super }}
+        window.detail = false;
+{% endblock %}
+
+{% block content %}
+    {% if 'team-cancelled' in request.GET %}
+      <div class="alert alert-success" style="margin: 30px;">
+        Your team plan has been succesfully cancelled.
+      </div>
+    {% endif %}
+    <section class="snipts" id="snipts" ng-controller="SniptListController"
+        {% if request.user.profile.list_view == 'C' %}
+            ng-cloak ng-show="$root.account.id"
+        {% endif %}>
+        {% if request.user.username == user.username and user.username in users_for_full_page %}
+          {% for snipt in snipts %}
+              {% include "snipts/snipt-list.html" %}
+          {% empty %}
+              <div class="empty-snipts">
+                  {% if request.user == user and not request.user.is_active and not public %}
+                    Welcome! Please <a target="_self" href="/account/activate/">activate your account</a> to create your first snipt.
+                  {% else %}
+                    {% if request.user == user and request.user.is_authenticated %}
+                      Welcome! Create your first snipt by clicking "Add Snipt" above.
+                    {% else %}
+                      No snipts to show here. Sorry!
+                    {% endif %}
+                  {% endif %}
+              </div>
+          {% endfor %}
+        {% else %}
+          {% autopaginate snipts 10 %}
+          {% for snipt in snipts %}
+              {% include "snipts/snipt-list.html" %}
+          {% empty %}
+              <div class="empty-snipts">
+                  {% if request.user == user and not request.user.is_active and not public %}
+                    Welcome! Please <a target="_self" href="/account/activate/">activate your account</a> to create your first snipt.
+                  {% else %}
+                    {% if request.user == user and request.user.is_authenticated %}
+                      Welcome! Create your first snipt by clicking "Add Snipt" above.
+                    {% else %}
+                      No snipts to show here. Sorry!
+                    {% endif %}
+                  {% endif %}
+              </div>
+          {% endfor %}
+          {% paginate %}
+        {% endif %}
+    </section>
+{% endblock %}

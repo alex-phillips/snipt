@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block page-title %}Sign up for Snipt Pro{% endblock %}
+
+{% block body-class %}{{ block.super }} static pro signup pro-signup pro-signup-complete{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="/for-teams/">For Teams</a></li>
+    <li><span class="prompt">/</span> <a href="#">Complete</a></li>
+{% endblock %}
+
+{% block content %}
+  <form class="form-horizontal static-box" id="pro-signup" method="post">
+    <fieldset>
+      <div class="info">
+        Team created successfully.
+      </div>
+      <ul>
+        <li>
+          <a href="/{{ team.user.username }}">View your team profile</a>
+        </li>
+        <li>
+          <a href="/{{ team.user.username }}/members">Add some members</a>
+        </li>
+      </ul>
+    </fieldset>
+  </form>
+{% endblock %}

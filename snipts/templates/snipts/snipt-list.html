@@ -1,0 +1,256 @@
+{% load humanize snipt_tags truncate_lines %}
+
+{% snipt_is_favorited_by_user as 'is_favorited' %}
+
+<article id="snipt-{{ snipt.pk }}" class="snipt 
+    {% if 'snipt-expand' in snipt.tags_list %}
+        snipt-expand
+    {% endif %}
+    {% if snipt.blog_post %}
+        blog-post
+    {% endif %}
+    {% if not snipt.public %}
+        private-snipt
+    {% endif %}
+    {% if snipt.secure %}
+        secure-snipt
+    {% endif %}
+    {% if snipt.line_count > 8 and not detail and 'snipt-expand' not in snipt.tags_list %}
+        expandable
+    {% endif %}
+    {% if snipt|is_authorized_user:request.user %}
+        editable
+    {% endif %}
+    {% if is_favorited %}
+        favorited" data-favorite-id="{{ is_favorited }}"
+    {% else %}
+        "
+    {% endif %} ng-class="{compact: account.list_view == 'C'}">
+    <div class="group">
+        <div class="container {% if snipt.description %}with-description{% endif %}">
+            <header>
+                {% block lexer %}
+                    <h2 ng-show="!account || account.list_view == 'N'">{{ snipt.lexer_name }}</h2>
+                {% endblock %}
+                <h1><a href="{{ snipt.get_absolute_url }}">{% if snipt.title %}{{ snipt.title }}{% else %}Untitled{% endif %}</a></h1>
+                {% block extra-snipt-header %}{% endblock %}
+            </header>
+            <section ng-show="!account || account.list_view == 'N'" class="code {% if request.GET.style %}{{ request.GET.style }}{% else %}autumn{% endif %}">
+                {% if snipt.lexer == 'markdown' %}
+                    <div class="markdown">
+                        {{ snipt.stylized|safe }}
+                    </div>
+                {% else %}
+                    {% if 'linenos' not in snipt.stylized %}
+                        <table class="highlighttable fakenos">
+                            <tbody>
+                                <tr>
+                                    <td class="linenos">
+                                        <div class="linenodiv">
+                                            <pre>
+                                                {% generate_line_numbers for snipt.line_count %}
+                                            </pre>
+                                        </div>
+                                    </td>
+                                    <td class="code">
+                                        {{ snipt.stylized|safe }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    {% else %}
+                      {% if snipt.line_count > 300 and not detail %}
+                          <table class="highlighttable">
+                              <tbody>
+                                  <tr>
+                                      <td class="linenos">
+                                          <div class="linenodiv">
+                                              <pre></pre>
+                                          </div>
+                                      </td>
+                                      <td class="code">
+                                        <div class="highlight">
+                                          <pre><span>{{ snipt.code|truncate_lines }}</span></pre>
+                                        </div>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                        {% else %}
+                          {{ snipt.stylized|safe }}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+                {% if snipt.line_count > 8 and not detail and 'snipt-expand' not in snipt.tags_list %}
+                    {% if snipt.line_count > 300 %}
+                        <a href="{{ snipt.get_absolute_url }}" class="view-full">
+                            <span class="expand">
+                                View full
+                            </span>
+                            <span class="lines">({{ snipt.line_count }} lines) -- large snipt</span>
+                        </a>
+                    {% else %}
+                        <a href="#" class="expand">
+                            <span class="expand">
+                                Expand
+                            </span>
+                            <span class="collapse">Collapse</span>
+                            <span class="lines">({{ snipt.line_count }} lines)</span>
+                        </a>
+                    {% endif %}
+                {% endif %}
+                {% if snipt.line_count <= 300 or detail %}
+                  <textarea class="raw">{{ snipt.code }}</textarea>
+                {% endif %}
+                <textarea class="description">{{ snipt.description }}</textarea>
+            </section>
+            {% if snipt.description and detail %}
+                <section class="description">
+                    <h1>Description</h2>
+                    {{ snipt.description|urlize|linebreaksbr }}
+                </section>
+            {% endif %}
+            <div class="ruler top-x"></div>
+            <div class="ruler bottom-x"></div>
+        </div>
+        {% block aside %}
+            <aside ng-show="!account || account.list_view == 'N'">
+                <ul class="options">
+                    {% if snipt|is_authorized_user:request.user %}
+                        {% if snipt.line_count <= 300 or detail %}
+                          <li>
+                              <a class="edit" href="#">Edit</a>
+                          </li>
+                        {% else %}
+                          <li>
+                            <a class="view" href="{{ snipt.get_absolute_url }}">View</a>
+                          </li>
+                        {% endif %}
+                    {% endif %}
+                    <li>
+                        <a class="embed" href="#">Embed</a>
+                    </li>
+                    {% if snipt.line_count <= 300 or detail %}
+                      <li>
+                          <a class="copy" href="#">Copy</a>
+                      </li>
+                    {% endif %}
+                    {% if snipt.user != request.user and request.user.is_authenticated and not snipt.user.team %}
+                        <li>
+                            {% if is_favorited %}
+                                <a class="favorite favorited" href="#">Favorited</a>
+                            {% else %}
+                                <a class="favorite unfavorited" href="#">Favorite</a>
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                    {% if detail %}
+                        <li>
+                            <a class="download" href="{{ snipt.get_download_url }}">Download</a>
+                        </li>
+                        <li>
+                            <a class="history" href="#history">History</a>
+                        </li>
+                        {% if snipt.secure %}
+                          <li>
+                              <a class="secure-view-log" href="#secure-view-log">View Log</a>
+                          </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                {% if snipt.tags.all %}
+                    <section class="meta tags">
+                        <h2>{{ snipt.tags.all|length }} tag{{ snipt.tags.all|pluralize }}</h2>
+                        <ul>
+                            {% for tag in snipt.sorted_tags %}
+                                <li {% if forloop.counter > 3 and not detail %}class="hidden"{% endif %}>
+                                    {% if public %}
+                                        <a href="/public/tag/{{ tag.slug }}/">{{ tag }}</a>
+                                    {% else %}
+                                        <a href="/{{ snipt.user.username }}/tag/{{ tag.slug }}/">{{ tag }}</a>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
+                <section class="meta stats">
+                    <ul>
+                        <li>{{ snipt.views|intcomma }} view{{ snipt.views|pluralize }}</li>
+                        <li>{{ snipt.favs|intcomma }} fav{{ snipt.favs|pluralize }}</li>
+                    </ul>
+            </section>
+            </aside>
+        {% endblock %}
+    </div>
+    <footer class="snipt-attrs" ng-show="!account || account.list_view == 'N'">
+        <ul class="attrs">
+            {% block author %}
+                <li class="author">
+                    <span class="avatar" style="background-image: url('https://secure.gravatar.com/avatar/{{ snipt.user.email|md5 }}?s=15&amp;d=https://snipt.s3.amazonaws.com/img/author-icon.png');"></span>
+                    <a href="{{ snipt.user.get_absolute_url }}">{{ snipt.user.username }}</a>
+                    {% if snipt.user.profile.is_a_team %}
+                        <span class="pro"><a href="/for-teams/">Team</a></span>
+                    {% endif %}
+                    {% if snipt.user.profile.gittip_username %}
+                        <span class="gittip"><a href="https://www.gittip.com/{{ snipt.user.profile.gittip_username }}/">Tip</a></span>
+                    {% endif %}
+                </li>
+            {% endblock %}
+            {% if snipt.blog_post %}
+                <li class="created" title="{{ snipt.publish_date|date:"Y-m-d\TH:i:s" }}">{{ snipt.publish_date|naturaltime }}</li>
+            {% else %}
+                <li class="created" title="{{ snipt.created|date:"Y-m-d\TH:i:s" }}">{{ snipt.created|naturaltime }}</li>
+            {% endif %}
+            <li class="raw">
+                <a href="{{ snipt.get_raw_url }}">Raw</a> / 
+                <a href="{{ snipt.get_raw_url }}?nice">Raw Nice</a>
+                {% if snipt.public %}
+                  / <a href="/api/public/snipt/{{ snipt.id }}/?format=json">API</a>
+                {% endif %}
+            </li>
+            {% if detail and snipt.public %}
+                <li class="tweet">
+                    <a href="https://twitter.com/share" class="twitter-share-button" data-dnt="true" data-count="none" data-url="{{ snipt.get_full_absolute_url }}" data-text="&ldquo;{{ snipt.title }}&rdquo; on @Snipt">Tweet</a>
+                </li>
+            {% endif %}
+        </ul>
+    </footer>
+    <div class="modal hide copy-modal">
+        <div class="modal-header">
+            <a href="#" class="close">×</a>
+            <h3><span>Copy &ldquo;{{ snipt.title }}&rdquo;</span></h3>
+            <h4>(Text is selected. <span class="cmd-ctrl"></span>+C to copy.)</h4>
+        </div>
+        <div class="modal-body"></div>
+    </div>
+    <div class="modal hide embed-modal">
+        <div class="modal-header">
+            <a href="#" class="close">×</a>
+            <h3><span>Embed &ldquo;{{ snipt.title }}&rdquo;</span></h3>
+            <h4>(Text is selected. <span class="cmd-ctrl"></span>+C to copy.)</h4>
+        </div>
+        <div class="modal-body"></div>
+    </div>
+    <div class="hide embed-url">{{ snipt.get_embed_url }}</div>
+    <div class="hide raw-url">{{ snipt.get_raw_url }}</div>
+    <div class="hide key">{{ snipt.key }}</div>
+    <div class="hide lexer">{{ snipt.lexer }}</div>
+    <div class="hide lexer-name">{{ snipt.lexer_name }}</div>
+    <div class="hide line-count">{{ snipt.line_count }}</div>
+    <div class="hide modified">{{ snipt.modified|date:"Y-m-d\TH:i:s" }}</div>
+    <div class="hide public">{{ snipt.public }}</div>
+    <div class="hide secure">{{ snipt.secure }}</div>
+    <div class="hide blog-post">{{ snipt.blog_post }}</div>
+    <div class="hide publish-date">{{ snipt.publish_date|date:"M d, Y \a\t h:i A" }}</div>
+    {% if snipt|is_authorized_user:request.user %}
+        <div class="hide resource-uri">/api/private/snipt/{{ snipt.pk }}/</div>
+    {% else %}
+        <div class="hide resource-uri">/api/public/snipt/{{ snipt.pk }}/</div>
+    {% endif %}
+    <div class="hide slug">{{ snipt.slug }}</div>
+    {% if snipt.line_count <= 300 or detail %}
+      <div class="hide stylized">{{ snipt.stylized }}</div>
+    {% endif %}
+    <div class="hide tags-list">{{ snipt.tags_list }}</div>
+</article>

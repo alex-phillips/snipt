@@ -1,0 +1,137 @@
+{% load snipt_tags %}
+
+{% get_lexers as 'lexers' %}
+
+{% verbatim %}
+    <script id="edit" type="text/html">
+        <header class="fixed-save">
+            <div class="inner group">
+                <% if (snipt.id) { %>
+                    <button class="delete btn btn-danger">Delete</button>
+                <% } %>
+                <button class="save-and-close btn btn-success">Save and Close</button>
+                <button class="save btn btn-success">Save</button>
+                <button class="cancel btn btn-secondary">Cancel</button>
+            </div>
+        </header>
+        <div class="inner">
+            <section class="snipts" id="snipts">
+                <article id="snipt-<%= snipt.id %>" class="snipt editing">
+                    <div class="group">
+                        <div class="container">
+                            <header>
+                                <h2>&nbsp;</h2>
+                                <h1>
+                                    <input maxlength="255" type="text" id="snipt_title" placeholder="Title" value="<% if (snipt.title != 'Untitled') { %><%= snipt.title %><% } %>" />
+                                </h1>
+                            </header>
+                            <section class="code">
+                                <div class="editor"></div>
+                                <textarea class="editor hidden"><% snipt.code %></textarea>
+                            </section>
+                            <div class="ruler top-x"></div>
+                            <div class="ruler bottom-x"></div>
+                        </div>
+                        <aside>
+                            <div class="in">
+                                <% if (snipt.new_from_js) { %>
+                                  {% endverbatim %}
+                                  {% if request.user.profile.has_teams %}
+                                    <div class="user">
+                                      <label class="user">
+                                          <span>User / team</span>
+                                          <select name="user" id="id_user">
+                                                <option value="{{ request.user.username }}">{{ request.user.username }}</option>
+                                              {% for team in request.user.profile.teams %}
+                                                <option value="{{ team.slug }}">{{ team.name }}</option>
+                                              {% endfor %}
+                                          </select>
+                                      </label>
+                                    </div>
+                                  {% endif %}
+                                  {% verbatim %}
+                                <% } %>
+                                <div class="type-lexer">
+                                  <label class="lexer type-lexer">
+                                      <span>Type</span>
+                                      <select name="lexer" id="id_lexer">
+                                          {% endverbatim %}
+                                          {% for lexer in lexers %}
+                                              <option value="{{ lexer.1.0 }}">{{ lexer.0 }}</option>
+                                          {% endfor %}
+                                          {% verbatim %}
+                                      </select>
+                                  </label>
+                                </div>
+                                <label class="public is-private">
+                                    <input type="checkbox" <% if (snipt.public) { %>checked="checked"<% } %> name="" value="" />
+                                    <span>Public</span>
+                                    <div class="info private">
+                                      Private snipts do not appear in the public listing, but are accessible via the direct URL.
+                                    </div>
+                                    <div class="info public">
+                                      Public snipts are accessible by all Snipt.net users and appear in the public listing.
+                                    </div>
+                                </label>
+                                <label class="secure">
+                                    <input type="checkbox" <% if (snipt.secure) { %>checked="checked"<% } %> name="" value="" />
+                                    <span>Secure</span>
+                                    <div class="info">
+                                      Secure snipts are available by the direct URL, but require the user to be logged in, and views are recorded with the viewer's username.
+                                    </div>
+                                </label>
+                                <label class="blog-post is-blog-post">
+                                    <input type="checkbox" <% if (snipt.blog_post) { %>checked="checked"<% } %> name="" value="" />
+                                    <span>Blog post</span>
+                                </label>
+                                <label class="publish-date hidden">
+                                    <span>Publish date</span>
+                                    <input type="text" placeholder="now, 8pm, tomorrow, 12/25/07, etc." value="<%= snipt.publish_date %>" />
+                                </label>
+                                <label class="tags">
+                                    <span>Tags</span>
+                                    <textarea placeholder='tag-1, "tag 2", tag3, etc.'><%= snipt.tags_list %></textarea>
+                                </label>
+                                <label class="description">
+                                    <span>Description</span>
+                                    <textarea name="description" placeholder='optional'><% if (snipt.description && snipt.description !== 'None') { %><%= snipt.description %><% } %></textarea>
+                                </label>
+                            </div>
+                            <div class="editor-settings">
+                                <h2>Editor settings <a href="/account/" target="blank">change &raquo;</a></h2>
+                                <h4>F11 or Cmd+Enter toggles fullscreen mode</h4>
+                                <label class="lexer"><span>Editor<span></label>
+                                <select name="editor" id="id_editor">
+                                    <option value="codemirror" selected="selected">CodeMirror</option>
+                                    <option value="textarea">Textarea</option>
+                                </select>
+                                <label class="lexer"><span>Theme<span></label>
+                                <select name="theme" id="id_theme">
+                                    <option value="default">Default</option>
+                                    <option value="ambiance">Ambiance</option>
+                                    <option value="blackboard">Blackboard</option>
+                                    <option value="cobalt">Cobalt</option>
+                                    <option value="eclipse">Eclipse</option>
+                                    <option value="elegant">Elegant</option>
+                                    <option value="erlang-dark">Erlang Dark</option>
+                                    <option value="lesser-dark">Lesser Dark</option>
+                                    <option value="monokai">Monokai</option>
+                                    <option value="neat">Neat</option>
+                                    <option value="night">Night</option>
+                                    <option value="rubyblue">Ruby Blue</option>
+                                    <option value="solarized dark">Solarized Dark</option>
+                                    <option value="solarized light">Solarized Light</option>
+                                    <option value="twilight">Twilight</option>
+                                    <option value="vibrant-ink">Vibrant Ink</option>
+                                    <option value="xq-dark">XQ Dark</option>
+                                </select>
+                            </div>
+                        </aside>
+                    </div>
+                </article>
+            </section>
+        </div>
+        <div class="left-y ruler"></div>
+        <div class="right-y ruler"></div>
+    </script>
+{% endverbatim %}

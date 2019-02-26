@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% load pagination_tags %}
+
+{% block page-title %}/ Stats / Account - {{ block.super }}{% endblock %}
+
+{% block body-class %}{{ block.super }} static stats{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="/account/">Account</a></li>
+    <span class="prompt">/</span> <li><a href="/account/stats/">Stats</a></li>
+{% endblock %}
+
+{% block content %}
+    <section class="snipts" id="snipts"></section>
+    <div class="static-box">
+        {% autopaginate snipts 100 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Snipt</th>
+                    <th>Views</th>
+                    <th>Favs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for snipt in snipts %}
+                    <tr>
+                        <td><a href="{{ snipt.get_absolute_url }}">{% firstof snipt.title 'Untitled' %}</a></td>
+                        <td>{{ snipt.views }}</td>
+                        <td>{{ snipt.favs }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% paginate %}
+    </div>
+{% endblock %}

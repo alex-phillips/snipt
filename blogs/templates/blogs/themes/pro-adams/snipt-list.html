@@ -1,0 +1,56 @@
+{% load snipt_tags %}
+
+<article class="group {% if detail %}detail{% endif %}">
+    {% if snipt.title != 'Work' %}
+        <div class="gutter">
+            <a href="{{ snipt.get_full_absolute_url }}" {% if detail %}class="detail"{% endif %}>
+                <time pubdate datetime="{{ snipt.publish_date|date:'c' }}">
+                    <span class="id">
+                        #{{ snipt.id }}
+                    </span>
+                    <span class="mon-day">
+                        {{ snipt.publish_date|date:'M' }} {{ snipt.publish_date|date:'j' }}
+                    </span>
+                    <span class="year">{{ snipt.publish_date|date:'Y' }}</span>
+                </time>
+            </a>
+        </div>
+    {% endif %}
+    <div class="content-inner">
+        <h1><a href="{{ snipt.get_full_absolute_url }}">{% firstof snipt.title 'Untitled' %}</a></h1>
+        <div class="post-content autumn">
+            {% if snipt.lexer == 'markdown' %}
+                <div class="markdown">
+                    {% if detail %}
+                        {{ snipt.stylized|safe }}
+                    {% else %}
+                        {{ snipt.stylized|truncatewords_html:70|safe }}
+                    {% endif %}
+                </div>
+            {% else %}
+                {% if detail %}
+                    {{ snipt.stylized|safe }}
+                {% else %}
+                    {{ snipt.stylized|truncatewords_html:100|safe }}
+                {% endif %}
+            {% endif %}
+            {% if detail %}
+                <div id="disqus_thread"></div>
+                <script type="text/javascript">
+                    var disqus_shortname = '{{ firstof blog_user.profile.disqus_shortname }}';
+                    {% if debug %}
+                        var disqus_developer = 1;
+                    {% endif %}
+                    var disqus_url = '{{ snipt.get_full_absolute_url }}{% if not snipt.public %}?key={{ snipt.key }}{% endif %}';
+                    var disqus_title = '{{ snipt.title }}';
+                    var disqus_identifier = {{ snipt.id }};
+                    (function() {
+                        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                        dsq.src = 'https://' + disqus_shortname + '.disqus.com/embed.js';
+                        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                    })();
+                </script>
+            {% endif %}
+        </div>
+    </div>
+</article>

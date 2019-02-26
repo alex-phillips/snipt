@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block page-title %}Snipt for Teams{% endblock %}
+
+{% block body-class %}{{ block.super }} static signup pro pro-signup{% endblock %}
+
+{% block js %}
+  {{ block.super }}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="/for-teams/">Snipt for Teams</a></li>
+{% endblock %}
+
+{% block content %}
+  {% if request.GET.declined %}
+    <div class="alert alert-error" style="margin: 30px;">
+      <strong>{{ request.GET.declined }}</strong> You have not been charged. Please try again.
+    </div>
+  {% endif %}
+  <form class="form-horizontal static-box" id="pro-signup" method="post" action="/for-teams/complete/">
+    <fieldset>
+      <div class="info">
+        Snipt for Teams
+        <ul class="features">
+          <li>Team profile at snipt.net/{team-name}.</li>
+          <li>Members can create and edit public and private snippets on a team.</li>
+          <li>Detailed log of changes on a snippet, including user and code diffs.</li>
+          <li>Maintain a public team profile by posting public snippets.</li>
+        </ul>
+      </div>
+      {% if not request.user.is_authenticated %}
+          <div class="login-first">
+            <span>
+              To create a team, <a href="/login/?next=/for-teams/">log in</a>.
+            </span>
+          </div>
+        {% else %}
+          <div class="payment-form">
+            <div class="control-group">
+              <label class="control-label" for="team-name">Team name:</label>
+              <div class="controls">
+                <input maxlength="30" required type="text" class="input-xlarge" name="team-name" id="team-name" />
+                <p class="sub" style="margin-top: 3px; color: #999999;">
+                  Maximum of 30 characters.
+                </p>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="email">Team email:</label>
+              <div class="controls">
+                <input required type="email" class="input-xlarge" name="email" id="email" />
+                <p class="sub" style="margin-top: 3px; color: #999999;">
+                  For your team's Gravatar. Will remain private.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="form-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Create team &raquo;</button>
+          </div>
+        {% endif %}
+    </fieldset>
+  </form>
+{% endblock %}

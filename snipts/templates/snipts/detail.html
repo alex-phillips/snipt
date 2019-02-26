@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% load humanize pygmentize snipt_tags %}
+
+{% block add-snipt %}
+  {% include 'add-snipt.html' %}
+{% endblock %}
+
+{% block page-title %}/ {% if snipt.title %}{{ snipt.title }}{% else %}Untitled{% endif %} / {{ user.username }} - {{ block.super }}{% endblock %}
+{% block html-class %}detail{% endblock %}
+{% block body-class %}{% if request.path == '/api/' or request.path == '/blogging/' %}snipt-page{% else %}detail{% endif %}{% endblock %}
+
+{% block js %}
+        {{ block.super }}
+        window.detail = true;
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="/{{ user.username }}/">{{ user.username }}</a></li>
+    <li><span class="prompt">/</span> <a href="{{ snipt.get_absolute_url }}">{{ snipt.title }}</a></li>
+{% endblock %}
+
+{% block aside-inner %}
+    {% if request.path == '/api/' %}
+        {% if request.user.is_authenticated %}
+            <aside class="api-info api-creds">
+                <div class="api-inner">
+                    <h5>Your API credentials:</h5>
+                    <ul>
+                        <li>Username: <strong>{{ request.user.username }}</strong></li>
+                        <li>User ID: <strong>{{ request.user.id }}</strong></li>
+                        <li>API Key: <br /><input type="text" value="{{ request.user.api_key.key }}" /></li>
+                    </ul>
+                </div>
+            </aside>
+        {% endif %}
+        <aside class="api-info immediate-help">
+            <div class="api-inner">
+                <h5>Need immediate help?</h5>
+                <p>Ping &ldquo;nicksergeant&rdquo; in <strong>#snipt</strong> on irc.freenode.net.</p>
+            </div>
+        </aside>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <section class="snipts" id="snipts">
+        {% with 'true' as detail %}
+            {% include "snipts/snipt-list.html" %}
+        {% endwith %}
+        <div class="secure-view-log" id="secure-view-log">
+          {% for secure_view in snipt.sniptsecureview_set.all|dictsortreversed:"created" %}
+            <footer class="snipt-attrs">
+              <ul class="attrs">
+                <li class="author">
+                  <span class="avatar" style="background-image: url('https://secure.gravatar.com/avatar/{{ secure_view.user.email|md5 }}?s=15&amp;d=https://snipt.s3.amazonaws.com/img/author-icon.png');"></span>
+                  <a href="{{ secure_view.user.get_absolute_url }}">{{ secure_view.user.username }} ({{ secure_view.user.email }})</a>
+                </li>
+                <li class="created" title="{{ secure_view.created|date:"Y-m-d\TH:i:s" }}">{{ secure_view.created|naturaltime }}</li>
+              </ul>
+            </footer>
+          {% endfor %}
+        </div>
+        <div class="snipt-log" id="history">
+          {% for log_entry in snipt.sniptlogentry_set.all|dictsortreversed:"created" %}
+            <section class="code autumn">
+              {{ log_entry.diff|pygmentize|safe }}
+            </section>
+            <footer class="snipt-attrs">
+              <ul class="attrs">
+                <li class="author">
+                  <span class="avatar" style="background-image: url('https://secure.gravatar.com/avatar/{{ log_entry.user.email|md5 }}?s=15&amp;d=https://snipt.s3.amazonaws.com/img/author-icon.png');"></span>
+                  <a href="{{ log_entry.user.get_absolute_url }}">{{ log_entry.user.username }}</a>
+                </li>
+                <li class="created" title="{{ log_entry.created|date:"Y-m-d\TH:i:s" }}">{{ log_entry.created|naturaltime }}</li>
+              </ul>
+            </footer>
+          {% endfor %}
+        </div>
+    </section>
+{% endblock %}

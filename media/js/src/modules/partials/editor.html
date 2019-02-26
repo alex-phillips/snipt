@@ -1,0 +1,20 @@
+<div class="def" data-title="Editor">
+    <div class="control-group" ng-class="{error: errors.default_editor}">
+        <label class="control-label" for="id_default_editor">Default editor:</label>
+        <div class="controls">
+            <select ng-model="user.default_editor"
+                ng-options="editor.id as editor.label for editor in editorOptions"
+                id="id_default_editor">
+            </select>
+        </div>
+    </div>
+    <div class="control-group" ng-class="{error: errors.editor_theme}">
+        <label class="control-label" for="id_editor_theme">Default editor theme:</label>
+        <div class="controls">
+            <select ng-model="user.editor_theme"
+                ng-options="theme.id as theme.label for theme in editorThemeOptions"
+                id="id_editor_theme">
+            </select>
+        </div>
+    </div>
+</div>

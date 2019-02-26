@@ -1,0 +1,185 @@
+$Helvetica: 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', FreeSans, sans-serif;
+
+body.blog-site {
+    article.snipt {
+        div.group {
+            div.container {
+                width: 718px;
+
+                header {
+                    min-height: 0;
+
+                    h1 {
+                        margin: 11px 15px;
+                    }
+                }
+            }
+        }
+        footer {
+            ul.attrs {
+                li.tweet {
+                    margin-right: 30px;
+                }
+            }
+        }
+    }
+    section.main {
+        div.ruler {
+            z-index: 50;
+        }
+        aside.main {
+            nav.footer {
+                margin-right: 0;
+
+                ul.powered {
+                    border-top: 1px solid #DDDDDD;
+                    padding-top: 30px;
+
+                    li {
+                        background: transparent url('https://snipt.s3.amazonaws.com/img/favicon.png') top left no-repeat;
+
+                        a {
+                            border: none;
+                            color: #3E6B73;
+                            display: inline-block;
+                            font-style: italic;
+
+                            &:hover {
+                                border-bottom: 1px solid #333;
+                                color: #333;
+                            }
+                        }
+                    }
+                }
+                &.with-sidebar {
+                    margin-top: 30px;
+                }
+            }
+            section.sidebar {
+                margin-bottom: 30px;
+                margin-left: 15px;
+
+                p {
+                    line-height: 16px;
+                    margin-bottom: 15px;
+                }
+                a {
+                    &:hover {
+                        text-decoration: none;
+                    }
+                }
+            }
+        }
+    }
+    header.main {
+        background: transparent url('https://snipt.s3.amazonaws.com/img/blog-header-bg.png') top left repeat;
+        height: auto;
+
+        div.inner {
+            height: auto;
+
+            h1 {
+                float: none;
+                position: static;
+
+                a {
+                    background: none;
+                    border-bottom: 2px solid transparent;
+                    color: #2A535C;
+                    font: normal 30px $Helvetica;
+                    height: auto;
+                    letter-spacing: -1px;
+                    line-height: 30px;
+                    margin: 17px 0 17px 16px;
+                    text-decoration: none;
+                    text-indent: 0;
+                    text-shadow: none;
+                    width: auto;
+                    -webkit-transition: border .08s linear;
+                    -moz-transition: border .08s linear;
+                    -o-transition: border .08s linear;
+                    transition: border .08s linear;
+
+                    &:hover {
+                        border-bottom: 2px solid #3A5E67;
+                    }
+                }
+            }
+        }
+    }
+    header.sub {
+        div.inner {
+            z-index: 51;
+        }
+    }
+    section.ad {
+        div.carbonad {
+            div#azcarbon {
+                
+            }
+        }
+    }
+}
+body.blog-detail {
+    section.main {
+        div.inner {
+            width: 718px;
+
+            section.snipts {
+                article.snipt {
+                    margin-bottom: 0;
+
+                    div.container {
+                        width: 100%;
+                        
+                        h1 {
+                            a {
+                                white-space: normal;
+                            }
+                        }
+                        section.code {
+                            height: auto;
+
+                            td.code {
+                                div.highlight {
+                                    pre {
+                                        width: 683px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    footer {
+                        ul.attrs {
+                            li.tweet {
+                                margin-right: 116px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    div#disqus_thread {
+        width: 704px;
+
+        #dsq-content {
+            margin-top: -38px;
+        }
+    }
+}
+body.blog-list {
+    article.snipt {
+        div.container {
+            section.code {
+                td.code {
+                    div.highlight {
+                        pre {
+                            width: 683px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{% extends "snipts/list.html" %}
+
+{% block add-snipt %}
+  {% include 'add-snipt.html' %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="/public/">public</a></li>
+    {% if tag %}
+        <li><span class="prompt">/</span> <a href="/public/tag/{{ tag.slug }}/">{{ tag.name }}</a></li>
+    {% endif %}
+    <li class="rss">
+        <a href="{{ request.path }}?rss">RSS</a>
+    </li>
+    {% if has_snipts %}
+        <li class="compact">
+            <a ng-click="$root.account.list_view = 'C'" href>Compact</a>
+        </li>
+        <li class="normal">
+            <a ng-click="$root.account.list_view = 'N'" href>Normal</a>
+        </li>
+    {% endif %}
+{% endblock %}

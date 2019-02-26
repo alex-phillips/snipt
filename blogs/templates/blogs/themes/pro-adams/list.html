@@ -1,0 +1,25 @@
+{% extends "blogs/themes/pro-adams/base.html" %}
+
+{% load pagination_tags %}
+
+{% block body-class %}list{% endblock %}
+
+{% block content %}
+    {% autopaginate snipts 10 %}
+    {% for snipt in snipts %}
+        {% include "blogs/themes/pro-adams/snipt-list.html" %}
+    {% endfor %}
+    {% paginate %}
+    <script type="text/javascript">
+        var disqus_shortname = '{{ blog_user.profile.disqus_shortname }}';
+        {% if debug %}
+            var disqus_developer = 1;
+        {% endif %}
+        (function () {
+            var s = document.createElement('script'); s.async = true;
+            s.type = 'text/javascript';
+            s.src = 'https://' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+{% endblock %}

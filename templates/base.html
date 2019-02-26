@@ -1,0 +1,402 @@
+{% load snipt_tags static %}
+
+{% signup_enabled as 'signup_is_enabled' %}
+
+<!DOCTYPE html>
+<html lang="en" class="{% block html-class %}{% endblock %}" ng-app="Snipt">
+<head>
+
+  <title>{% block page-title %}Snipt{% endblock %} - Code snippet app for teams and individuals.</title>
+
+  <meta charset="utf-8" />
+  <meta name="google-site-verification" content="BantFMmY6nSP8wFvb_SDKwYZo08HglaCpNMXQqTyOuk" />
+
+  {% block page-description %}
+    <meta name="description" content="Code snippet app for teams and individuals." />
+  {% endblock %}
+
+  {% if 'page' in request.GET %}
+    <meta name="robots" content="noindex, follow" />
+  {% endif %}
+
+  {% if debug %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/themes.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/chosen.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/ambiance.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/blackboard.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/cobalt.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/eclipse.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/elegant.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/erlang-dark.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/lesser-dark.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/monokai.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/neat.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/night.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/rubyblue.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/solarized.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/twilight.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/vibrant-ink.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/codemirror-themes/xq-dark.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/highlightjs-themes/tomorrow.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/blog-themes/default/style.css" />
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/snipt.css?129" />
+  {% endif %}
+
+  {% if has_snipts and not detail %}
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ request.path }}?rss{% if not public %}&amp;api_key={{ request.user.api_key.key }}{% endif %}" />
+  {% endif %}
+
+  {% block css %}{% endblock %}
+
+  <!--[if IE]>
+  <style type="text/css">
+    .group {
+      display: block;
+      zoom: 1;
+    }
+  </style>
+  <![endif]-->
+
+  <!--[if lt IE 9]>
+  <script src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+</head>
+<body class="{% block body-class %}{% endblock %} is-pro" ng-controller="AppController">
+
+{% block header %}
+  <header class="main">
+    <div class="inner">
+      <div class="shadey"></div>
+      <h1 class="main-logo"><a href="{% if request.user.is_authenticated %}/{{ request.user.username }}/{% else %}/{% endif %}">snip<span>t</span></a></h1> 
+      <form class="search" action="/search/" method="get">
+        <fieldset>
+          <div class="fields">
+            <input ng-model="search.query" type="text" class="search-query" name="q"
+            ng-init="search.query='{{ query|escapejs }}'"
+            placeholder="Search snipts" id="id_q"
+            value="{{ query }}" />
+          </div>
+        </fieldset>
+      </form>
+      <nav class="public">
+        <ul>
+          {% if not request.user.is_authenticated %}
+            <li>
+              <a href="/public/" {% if '/public/' in request.path or public %} class="active"{% endif %}>Public snipts</a>
+            </li>
+            <li>
+              <a href="/login/?next={{ request.path }}" {% if '/login/' in request.path %} class="active"{% endif %}>Log in</a>
+            </li>
+            {% if signup_is_enabled %}
+              <li>
+                <a href="/signup/" {% if '/signup/' in request.path %} class="active"{% endif %}>Sign up</a>
+              </li>
+            {% endif %}
+          {% else %}
+            <li>
+              <a href="/{{ request.user.username }}/" {% if request.user.username in request.path %} class="active"{% endif %}>My snipts</a>
+            </li>
+            <li>
+              <a href="/public/" {% if '/public/' in request.path or public %} class="active"{% endif %}>Public snipts</a>
+            </li>
+            {% block add-snipt %}{% endblock %}
+          {% endif %}
+          {% if not request.user.is_authenticated %}
+            <li>
+              <a href="/for-teams/" class="{% if '/for-teams/' in request.path %}active{% endif %}">Teams</a>
+            </li>
+          {% else %}
+            <li class="teams-nav">
+              <a href="#" class="teams-nav {% if '/for-teams/' in request.path %}active{% endif %}">Teams</a>
+                <ul>
+                  {% if request.user.profile.has_teams %}
+                    {% for team in request.user.profile.teams|dictsort:'name' %}
+                      <li>
+                        <a href="/{{ team.user.username }}/">
+                          <i class="icon-user icon-white"></i>
+                          {{ team.name }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  {% endif %}
+                  <li>
+                    <a href="/for-teams/">
+                      <i class="icon-plus icon-white"></i>
+                      Create new team
+                    </a>
+                  </li>
+                </ul>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% if request.user.is_authenticated %}
+        <aside class="nav">
+          <a href="#" class="mini-profile">
+            <span class="avatar" style="background-image: url('https://secure.gravatar.com/avatar/{{ request.user.email|md5 }}?s=35');"></span>
+            <span class="info">
+              <span class="username">{{ request.user.username }}</span>
+              <i class="icon-cog icon-white"></i>
+              <span class="type">
+                {% if request.user.profile.has_pro %}
+                  <span class="is-pro">Pro</span>
+                {% else %}
+                  Snipt user
+                {% endif %}
+              </span>
+            </span>
+          </a>
+          <ul>
+            <li>
+              <a href="/{{ request.user.username }}/">
+                <i class="icon-user icon-white"></i>
+                Profile
+              </a>
+            </li>
+            <li>
+              <a href="/account/stats/">
+                <i class="icon-star icon-white"></i>
+                Stats
+              </a>
+            </li>
+            <li>
+              <a href="/account/">
+                <i class="icon-cog icon-white"></i>
+                Account
+              </a>
+            </li>
+            {% if request.user.is_superuser %}
+              <li>
+                <a href="/admin/">
+                  <i class="icon-cog icon-white"></i>
+                  Admin
+                </a>
+              </li>
+            {% endif %}
+            <li>
+              <a href="/logout/?next={{ request.path }}">
+                <i class="icon-off icon-white"></i>
+                Log out
+              </a>
+            </li>
+          </ul>
+        </aside>
+      {% endif %}
+    </div>
+  </header>
+{% endblock %}
+{% block sub-header %}
+  <header class="sub">
+    <div class="inner group">
+      <ul class="bcrumb group">
+        <li class="prompt">/</li>
+        {% block breadcrumb %}{% endblock %}
+      </ul>
+      <div class="shortcuts">
+        Ctrl+h for KB shortcuts
+      </div>
+    </div>
+  </header>
+{% endblock %}
+{% block main %}
+  <section class="main group" id="main">
+    {% block aside %}
+      <aside class="main">
+        {% block aside-top %}{% endblock %}
+        {% block aside-inner %}{% endblock %}
+        <nav class="footer">
+          <ul>
+            <li class="api">
+              <a href="https://github.com/nicksergeant/snipt/wiki/API-Docs"><span>API Docs</span></a>
+            </li>
+            <li class="blog">
+              <a href="https://github.com/nicksergeant/snipt/wiki/Blogging-Docs"><span>Blogging Docs</span></a>
+            </li>
+            <li class="roadmap">
+              <a href="https://github.com/nicksergeant/snipt/"><span>GitHub Source</span></a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+    {% endblock %}
+    <div class="inner">
+      {% block content %}{% endblock %}
+    </div>
+    <div class="left-y ruler"></div>
+    <div class="right-y ruler"></div>
+  </section>
+{% endblock %}
+{% block main-edit %}
+  <section class="main group hidden" id="main-edit"></section>
+{% endblock %}
+{% block keyboard-shortcuts %}
+  <div class="modal hide" id="keyboard-shortcuts">
+    <div class="modal-header">
+      <a href="#" class="close">×</a>
+      <h3><span>Keyboard shortcuts</span></h3>
+    </div>
+    <div class="modal-body">
+      <table class="table table-striped table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Function</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>&lt;ctrl-h&gt;</td>
+            <td>Show / hide keyboard shortcuts</td>
+          </tr>
+          <tr>
+            <td>/</td>
+            <td>Focus search field</td>
+          </tr>
+          <tr>
+            <td>esc</td>
+            <td>Unfocus search field / deselect snipt</td>
+          </tr>
+          <tr>
+            <td>j</td>
+            <td>Next snipt</td>
+          </tr>
+          <tr>
+            <td>k</td>
+            <td>Previous snipt</td>
+          </tr>
+          <tr>
+            <td>o / return</td>
+            <td>Go to snipt</td>
+          </tr>
+          <tr>
+            <td>u</td>
+            <td>Go to snipt's author</td>
+          </tr>
+          <tr>
+            <td>e</td>
+            <td>Expand / collapse snipt</td>
+          </tr>
+          <tr>
+            <td>v</td>
+            <td>Embed snipt</td>
+          </tr>
+          <tr>
+            <td>c</td>
+            <td>Copy snipt</td>
+          </tr>
+          <tr>
+            <td>&lt;ctrl-e&gt;</td>
+            <td>Edit snipt</td>
+          </tr>
+          <tr>
+            <td>&lt;ctrl-delete&gt; or &lt;ctrl-backspace&gt;</td>
+            <td>Delete snipt</td>
+          </tr>
+          <tr>
+            <td>&lt;ctrl-n&gt; or &lt;alt+n&gt;</td>
+            <td>Add new snipt</td>
+          </tr>
+          <tr>
+            <td>&lt;ctrl-s&gt;</td>
+            <td>Save snipt</td>
+          </tr>
+          <tr>
+            <td>&lt;ctrl-c&gt;</td>
+            <td>Save snipt and close</td>
+          </tr>
+          <tr>
+            <td>n</td>
+            <td>Next page</td>
+          </tr>
+          <tr>
+            <td>p</td>
+            <td>Previous page</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra-scripts %}{% endblock %}
+
+{% block inline-js %}
+  <script type="text/javascript">
+    {% block js %}
+      window.user = '{{ request.user.username }}';
+      window.user_id = {% firstof request.user.id 'null' %};
+      window.user_ip = '{{ request.META.REMOTE_ADDR }}';
+      window.user_profile_id = {% firstof request.user.profile.id 'null' %};
+      window.user_email = '{{ request.user.email }}';
+      window.teams = [
+        {% for team in request.user.profile.teams %}
+          '{{ team.slug }}',
+        {% endfor %}
+      ]
+      window.intended_user = '{{ request.user.username }}';
+
+      {% if public %}
+        window.pub = {{ public|lower }};
+      {% else %}
+        window.pub = null;
+      {% endif %}
+
+      window.api_key = '{{ request.user.api_key.key }}';
+    {% endblock %}
+    window.default_editor = '{{ request.user.profile.get_default_editor_display|lower }}';
+    window.editor_theme = '{{ request.user.profile.editor_theme }}';
+  </script>
+{% endblock %}
+
+{% if debug %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/angular.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/angular-route.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/underscore.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/json2.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/backbone.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/bootstrap.min.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/plugins/jquery.hotkeys.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/plugins/jquery.infieldlabel.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/plugins/jquery.chosen.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/codemirror.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/libs/highlight.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/src/application.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/src/team.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/src/modules/site.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/src/modules/snipt.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/src/account.js"></script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/src/snipts.js"></script>
+{% else %}
+  <script type="text/javascript" src="{{ STATIC_URL }}js/snipt-all.min.js?79"></script>
+{% endif %}
+
+{% if has_snipts and detail %}
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+{% endif %}
+{% block snipt-templates %}
+  <div class="hidden" id="templates">
+    {% include 'snipts/snipt-js-template.html' %}
+    {% include 'snipts/snipt-edit-js-template.html' %}
+  </div>
+{% endblock %}
+
+<script type="text/javascript">{% block analytics %}{% endblock %}</script>
+
+{% block preload %}
+  <div class="hidden">
+    <img src="{{ STATIC_URL }}img/header-fixed-save.gif" alt="" />
+    <img src="{{ STATIC_URL }}img/chosen-sprite.png" alt="" />
+    <img src="{{ STATIC_URL }}img/aside-nav-open-bottom-bg.gif" alt="" />
+    <img src="{{ STATIC_URL }}img/aside-nav-open-top-bg.gif" alt="" />
+  </div>
+{% endblock %}
+
+</body>
+</html>

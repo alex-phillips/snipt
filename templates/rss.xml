@@ -1,0 +1,24 @@
+{% load truncate_lines %}
+
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <atom:link href="https://snipt.net{{ request.get_full_path }}" rel="self" type="application/rss+xml" />
+        <description>{% if public and not public_user %}Public snipts{% else %}Snipts by {{ user.username }}{% endif %}{% if tag %} tagged with "{{ tag }}"{% endif %}</description>
+        <title>/ {% if public and not public_user %}public{% else %}{{ user.username }}{% endif %}{% if tag %} / {{ tag }}{% endif %} - Snipt</title>
+        <link>https://snipt.net{{ request.path }}</link>
+        {% for snipt in snipts %}
+            <item>
+                <title>{{ snipt.title }}</title>
+                <link>{{ snipt.get_full_absolute_url }}</link>
+                {% if snipt.line_count > 300 %}
+                  <description><![CDATA[{{ snipt.code|truncate_lines }}]]></description>
+                {% else %}
+                  <description><![CDATA[{{ snipt.code }}]]></description>
+                {% endif %}
+                <tags>{% for tag in snipt.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}</tags>
+                <pubDate>{{ snipt.created|date:"r" }}</pubDate>
+                <guid isPermaLink="false">snipt-net-{{ snipt.id }}</guid>
+            </item>
+        {% endfor %}
+    </channel>
+</rss>

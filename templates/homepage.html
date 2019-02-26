@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% load humanize static %}
+
+{% block sub-header %}{% endblock %}
+{% block keyboard-shortcuts %}{% endblock %}
+{% block inline-js %}{% endblock %}
+{% block snipt-templates %}{% endblock %}
+{% block preload %}{% endblock %}
+{% block main-edit %}{% endblock %}
+{% block body-class %}homepage{% endblock %}
+{% block html-class %}homepage{% endblock %}
+{% block css %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap-responsive.min.css" />
+{% endblock %}
+
+{% block header %}
+    <header class="main">
+        <div class="container">
+            <div class="row">
+                <h1 class="main-logo span2">
+                    <a href="/">snip<span>t</span></a>
+                </h1> 
+                <nav class="span6 offset4">
+                    <ul>
+                        {% if request.user.is_authenticated %}
+                            <li>
+                                <a href="/{{ request.user.username }}/">My snipts</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a href="/public/">Public snipts</a>
+                        </li>
+                        <li>
+                            <a href="/search/">Search</a>
+                        </li>
+                        {% if not request.user.is_authenticated %}
+                            <li>
+                                <a class="button" href="/login/">Log in</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            <div class="row">
+                <div class="sub span12">
+                    <h2>Code snippets for teams and individuals.</h2>
+                    <h3>Store, share, blog, learn.</h3>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+{% block main %}
+    <section class="coders">
+        <div class="container">
+            <div class="row">
+                <div class="span12">
+                    <h4>This is a private instance of <a href="https://github.com/nicksergeant/snipt">Snipt</a>.</h4>
+                </div>
+            </div>
+        </div>
+        {% if request.user.is_authenticated %}
+            <a href="/{{ request.user.username }}/" class="button">My snipts</a>
+        {% else %}
+            <a href="/login/" class="button">Log in</a>
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "blogs/themes/pro-adams/base.html" %}
+
+{% block body-class %}detail{% endblock %}
+
+{% block page-title %}// {{ snipt.title }} {{ block.super }}{% endblock %}
+
+{% block content %}
+    {% with 'true' as detail %}
+        {% include "blogs/themes/pro-adams/snipt-list.html" %}
+    {% endwith %}
+{% endblock %}

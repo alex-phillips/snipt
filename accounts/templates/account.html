@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block page-title %}/ Account - {{ block.super }}{% endblock %}
+
+{% block body-class %}{{ block.super }} static account{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="/account/">Account</a></li>
+{% endblock %}
+
+{% block content %}
+    <section class="snipts" id="snipts"></section>
+    <section class="profile group" ng-controller="AccountController">
+        <aside>
+            <ul class="nav nav-list ng-cloak" ng-cloak>
+                <li class="nav-header">Account</li>
+                <li ng-class="{active: route.current.scope.section == 'Profile'}">
+                    <a href="/account/">Profile</a>
+                </li>
+                <li>
+                    <a href="/password/change/">Change password</a>
+                </li>
+                <li ng-class="{active: route.current.scope.section == 'Blogging'}">
+                    <a href="/account/blogging/">Blogging</a>
+                </li>
+                <li ng-class="{active: route.current.scope.section == 'Editor'}">
+                    <a href="/account/editor/">Editor</a>
+                </li>
+            </ul>
+        </aside>
+        <section class="content" ng-class="{'with-message': message}">
+            <form ng-cloak class="ng-cloak" action="" method="get" accept-charset="utf-8" ng-submit="saveFields(route.current.scope.fields)">
+                <ng-view></ng-view>
+                <p class="alert ng-cloak"
+                    ng-cloak
+                    ng-class="{'alert-success': success, 'alert-error': !success}"
+                    ng-show="message">
+                    {[{ message }]}
+                </p>
+                <div class="form-actions" ng-show="route.current.scope.fields">
+                    <button type="submit"
+                        ng-disabled="saveButtonText != 'Save'"
+                        class="btn btn-success">
+                        {[{ saveButtonText }]}
+                    </button>
+                </div>
+            </form>
+        </section>
+    </section>
+{% endblock %}
