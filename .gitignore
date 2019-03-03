@@ -32,3 +32,5 @@ static/fonts
 static/img
 static/js
 tags
+
+.history/
