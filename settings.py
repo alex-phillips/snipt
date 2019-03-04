@@ -34,7 +34,12 @@ else:
         }
     }
 
-
+# Email integration
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_PORT = envint("EMAIL_PORT", "587")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = envbool("EMAIL_USE_TLS", "True")
 
 ABSOLUTE_URL_OVERRIDES = {'auth.user': lambda u: "/%s/" % u.username}
 ACCOUNT_ACTIVATION_DAYS = 0
@@ -46,8 +51,7 @@ BASE_PATH = os.path.dirname(__file__)
 CSRF_COOKIE_SECURE = True if 'USE_SSL' in os.environ else False
 CORS_ORIGIN_ALLOW_ALL = True
 DEBUG = True if 'DEBUG' in os.environ else False
-DEFAULT_FROM_EMAIL = os.environ.get('POSTMARK_EMAIL', 'support@snipt.net')
-EMAIL_BACKEND = 'postmark.django_backend.EmailBackend'
+DEFAULT_FROM_EMAIL = os.environ.get('FROM_EMAIL', 'support@snipt.net')
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 INTERNAL_IPS = ('127.0.0.1',)
 LANGUAGE_CODE = 'en-us'
@@ -67,7 +71,6 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.MD5PasswordHasher',
     'django.contrib.auth.hashers.CryptPasswordHasher',
 )
-POSTMARK_API_KEY = os.environ.get('POSTMARK_API_KEY', '')
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 REGISTRATION_EMAIL_HTML = False
 ROOT_URLCONF = 'urls'
@@ -75,7 +78,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True if 'USE_SSL' in os.environ else False
 SEND_BROKEN_LINK_EMAILS = False
-SERVER_EMAIL = os.environ.get('POSTMARK_EMAIL', 'support@snipt.net')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'support@snipt.net')
 SESSION_COOKIE_AGE = 15801100
 SESSION_COOKIE_SECURE = True if 'USE_SSL' in os.environ else False
 SITE_ID = 1
@@ -129,7 +132,6 @@ INSTALLED_APPS = (
     'haystack',
     'markdown_deux',
     'pagination',
-    'postmark',
     'registration',
     'snipts',
     'storages',
